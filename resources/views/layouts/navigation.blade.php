@@ -13,11 +13,6 @@
                     <a href="{{ Route::has('dashboard') ? route('dashboard') : url('/') }}">
                         <span class="font-bold text-blue-700 text-lg">
                             PRAKERIN YUPPENTEK 1
-                            <img
-                        src="{{ asset('images/yayasanbg.png') }}"
-                        alt="Logo Yuppentek"
-                        class="h-10 w-auto"
-                    >
                         </span>
                     </a>
                 </div>

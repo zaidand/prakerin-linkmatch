@@ -87,6 +87,9 @@ Route::middleware(['auth', 'role:admin'])
 
         Route::get('/final-grades/export-csv', [FinalGradeReportController::class, 'exportCsv'])
             ->name('final_grades.export_csv');
+
+        Route::get('/users/{user}/edit', [UserManagementController::class, 'edit'])->name('users.edit');
+        Route::put('/users/{user}', [UserManagementController::class, 'update'])->name('users.update');
     });
 
 // Group Guru Pembimbing

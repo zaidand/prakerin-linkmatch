@@ -18,8 +18,14 @@
                 <div class="p-6 text-gray-900">
                     <table class="min-w-full bg-white border">
                         <thead>
+                            @php $roleFilter = request('role'); @endphp
                         <tr class="bg-gray-100">
                             <th class="border px-4 py-2">Nama</th>
+                            @if($roleFilter === 'student')
+                            <th class="px-4 py-2">NIS</th>
+                            @elseif($roleFilter === 'teacher')
+                            <th class="px-4 py-2">NIP</th>
+                            @endif
                             <th class="border px-4 py-2">Email</th>
                             <th class="border px-4 py-2">Role</th>
                             <th class="border px-4 py-2">Status</th>
@@ -30,6 +36,13 @@
                         @forelse($users as $user)
                             <tr>
                                 <td class="border px-4 py-2">{{ $user->name }}</td>
+                                @if($roleFilter === 'student')
+                                <td class="px-4 py-2">
+                                    {{ $user->student->nis ?? '-' }}</td>
+                                @elseif($roleFilter === 'teacher')
+                                <td class="px-4 py-2">
+                                    {{ $user->teacher->nip ?? '-' }}</td>
+                                @endif
                                 <td class="border px-4 py-2">{{ $user->email }}</td>
                                 <td class="border px-4 py-2">{{ $user->role->name }}</td>
                                 <td class="border px-4 py-2">
@@ -64,6 +77,10 @@
                                             <button type="submit" class="text-red-600 underline">
                                                 Tolak
                                             </button>
+
+                                            <a href="{{ route('admin.users.edit', $user) }}"
+                                                class="text-blue-600 underline mr-3">
+                                                Edit</a>
                                         </form>
                                     @endif
                                 </td>
