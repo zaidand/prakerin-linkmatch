@@ -12,7 +12,7 @@ class InternshipAssignmentController extends Controller
     public function index()
     {
         $applications = InternshipApplication::with(['student.user', 'student.major', 'industry', 'quota'])
-            ->where('status', 'approved_by_teacher')
+            ->where('status', InternshipApplication::STATUS_APPROVED_BY_TEACHER)
             ->orderBy('created_at', 'desc')
             ->paginate(15);
 
@@ -47,7 +47,7 @@ class InternshipAssignmentController extends Controller
         // cek kapasitas kuota (sederhana: hitung semua yg sudah dialokasikan)
         $usedCount = $quota->applications()
             ->whereIn('status', [
-                InternshipApplication::STATUS_WAITING_INDUSTRY,
+                InternshipApplication::STATUS_ASSIGNED_BY_ADMIN,
                 InternshipApplication::STATUS_ACCEPTED,
             ])
             ->count();
@@ -58,7 +58,7 @@ class InternshipAssignmentController extends Controller
 
         $application->update([
             'industry_quota_id'  => $quota->id,
-            'status'             => InternshipApplication::STATUS_WAITING_INDUSTRY,
+            'status'             => InternshipApplication::STATUS_ASSIGNED_BY_ADMIN,
             'admin_note'         => $request->admin_note,
             'admin_assigned_at'  => now(),
         ]);

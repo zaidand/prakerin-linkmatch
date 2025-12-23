@@ -1,13 +1,33 @@
-@extends('layouts.app')
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">Dashboard Pembimbing Lapangan</h2>
+    </x-slot>
 
-@section('content')
-<div class="container mx-auto">
-    <h1 class="text-2xl font-bold mb-4">Dashboard Pembimbing Lapangan Industri</h1>
-    <p>Selamat datang, {{ auth()->user()->name }} (Pembimbing Lapangan).</p>
-    <ul class="mt-4 list-disc list-inside">
-        <li>Atur profil industri & kuota prakerin</li>
-        <li>Konfirmasi siswa yang ditempatkan</li>
-        <li>Validasi logbook dan penilaian siswa</li>
-    </ul>
-</div>
-@endsection
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+                <a href="{{ route('industry.applications.index') }}" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition">
+                    <p class="text-sm text-gray-500">Menunggu Konfirmasi</p>
+                    <p class="text-3xl font-bold mt-2">{{ $waitingConfirm }}</p>
+                </a>
+
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <p class="text-sm text-gray-500">Siswa Diterima</p>
+                    <p class="text-3xl font-bold mt-2">{{ $acceptedInterns }}</p>
+                </div>
+
+                <a href="{{ route('industry.quotas.index') }}" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition">
+                    <p class="text-sm text-gray-500">Kuota Aktif (periode berjalan)</p>
+                    <p class="text-3xl font-bold mt-2">{{ $activeQuotas }}</p>
+                </a>
+
+                <a href="{{ route('industry.logbooks.index') }}" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition">
+                    <p class="text-sm text-gray-500">Logbook Pending Validasi</p>
+                    <p class="text-3xl font-bold mt-2">{{ $pendingLogbooks }}</p>
+                </a>
+
+            </div>
+        </div>
+    </div>
+</x-app-layout>

@@ -35,12 +35,11 @@ class InternshipApplication extends Model
     ];
 
     // Status constants (supaya rapi di controller)
-    public const STATUS_WAITING_TEACHER   = 'waiting_teacher';
-    public const STATUS_REVISION          = 'revision';
-    public const STATUS_WAITING_ADMIN     = 'waiting_admin';
-    public const STATUS_WAITING_INDUSTRY  = 'waiting_industry';
-    public const STATUS_ACCEPTED          = 'accepted';
-    public const STATUS_REJECTED          = 'rejected';
+    public const STATUS_WAITING_TEACHER = 'waiting_teacher_verification';
+    public const STATUS_APPROVED_BY_TEACHER = 'approved_by_teacher';
+    public const STATUS_ASSIGNED_BY_ADMIN = 'assigned_by_admin';
+    public const STATUS_ACCEPTED = 'accepted';
+    public const STATUS_REJECTED = 'rejected';
 
     public function student()
     {
@@ -69,7 +68,7 @@ class InternshipApplication extends Model
 
     public function logbookEntries()
     {
-        return $this->hasMany(LogbookEntry::class);
+        return $this->hasMany(LogbookEntry::class, 'internship_application_id');
     }
 
     public function finalReport()

@@ -7,6 +7,7 @@ use App\Models\InternshipApplication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Notifications\ApplicationStatusUpdated;
+use Illuminate\Contracts\Auth\Access\Gate;
 
 class InternshipVerificationController extends Controller
 {
@@ -32,10 +33,15 @@ class InternshipVerificationController extends Controller
     {
         $teacher = Auth::user()->teacher;
 
+        // rule jurusan
         if ($teacher && $teacher->major_id && $application->student->major_id !== $teacher->major_id) {
             abort(403);
         }
-        $this->authorize('view', $application);
+
+        // jalankan authorize hanya jika Gate tersedia (agar tidak error Gate is not instantiable)
+        if (app()->bound(Gate::class)) {
+            $this->authorize('view', $application);
+        }
 
         return view('teacher.applications.show', compact('application', 'teacher'));
     }
@@ -48,65 +54,44 @@ class InternshipVerificationController extends Controller
             abort(403);
         }
 
-    if (Auth::user()?->role?->name !== 'teacher') {
-        abort(403);
+        if (Auth::user()?->role?->name !== 'teacher') {
+            abort(403);
+        }
+
+        // (opsional tapi sangat disarankan) hanya boleh approve kalau masih menunggu verifikasi guru
+        if ($application->status !== InternshipApplication::STATUS_WAITING_TEACHER) {
+            return redirect()
+                ->route('teacher.applications.show', $application)
+                ->with('error', 'Pengajuan ini tidak bisa disetujui pada status saat ini.');
+        }
+
+        $validated = $request->validate([
+            'teacher_note' => 'nullable|string|max:500',
+        ]);
+
+        // update status + catatan + timestamp verifikasi
+        $application->update([
+            'status' => InternshipApplication::STATUS_APPROVED_BY_TEACHER,
+            'teacher_note' => $validated['teacher_note'] ?? null,
+            'teacher_verified_at' => now(),
+            'save'(),
+        ]);
+
+        // kirim notifikasi ke siswa
+        $studentUser = $application->student->user ?? null;
+        if ($studentUser) {
+            $studentUser->notify(new ApplicationStatusUpdated($application));
+        }
+
+        return redirect()
+            ->route('teacher.applications.index')
+            ->with('success', 'Pengajuan telah disetujui dan direkomendasikan ke admin.');
     }
-
-    $validated = $request->validate([
-        'teacher_note' => 'nullable|string|max:500',
-    ]);
-
-    // ubah status & simpan catatan
-    $application->status = 'approved_by_teacher'; // sesuaikan dengan status di DB
-    $application->teacher_note = $validated['teacher_note'] ?? null;
-    $application->save();
-
-    // kirim notifikasi ke siswa
-    $studentUser = $application->student->user ?? null;
-
-    if ($studentUser) {
-        $studentUser->notify(new ApplicationStatusUpdated($application));
-    }
-
-    return redirect()
-        ->route('teacher.applications.index')
-        ->with('success', 'Pengajuan telah disetujui dan direkomendasikan ke admin.');
-    }
-
-    // public function revision(Request $request, InternshipApplication $application)
-    // {
-    //     $teacher = Auth::user()->teacher;
-
-    //     if ($teacher && $teacher->major_id && $application->student->major_id !== $teacher->major_id) {
-    //         abort(403);
-    //     }
-
-    // if (Auth::user()?->role?->name !== 'teacher') {
-    //     abort(403);
-    // }
-
-    // $validated = $request->validate([
-    //     'teacher_note' => 'required|string|max:500',
-    // ]);
-
-    // $application->status = 'revision'; // sesuaikan dengan value status revisi
-    // $application->teacher_note = $validated['teacher_note'];
-    // $application->save();
-
-    // $studentUser = $application->student->user ?? null;
-
-    // if ($studentUser) {
-    //     $studentUser->notify(new ApplicationStatusUpdated($application));
-    // }
-
-    // return redirect()
-    //     ->route('teacher.applications.index')
-    //     ->with('success', 'Pengajuan dikembalikan ke siswa untuk revisi.');
-    // }
 
     public function destroy(InternshipApplication $application)
     {
-        if ($application->status !== 'waiting_teacher_verification') {
+        // hanya boleh delete saat masih menunggu verifikasi guru
+        if ($application->status !== InternshipApplication::STATUS_WAITING_TEACHER) {
             return redirect()
                 ->route('teacher.applications.show', $application)
                 ->with('error', 'Pengajuan ini tidak bisa dihapus pada status saat ini.');
@@ -121,21 +106,25 @@ class InternshipVerificationController extends Controller
 
     public function update(Request $request, InternshipApplication $application)
     {
-    // Pastikan hanya guru yang boleh verifikasi (sesuai policy)
-    $this->authorize('verify', $application);
+        // kalau Gate/Policy belum kamu aktifkan, jangan pakai authorize di sini juga
+        if (app()->bound(Gate::class)) {
+            $this->authorize('verify', $application);
+        }
 
-    $validated = $request->validate([
-        'status' => 'required|in:approved_by_teacher,revision', // sesuaikan dengan enum/status di model
-        'teacher_note' => 'nullable|string|max:500',
-    ]);
+        $validated = $request->validate([
+            // karena kamu sudah tidak pakai revision, sebaiknya update hanya untuk approved_by_teacher saja
+            'status' => 'required|in: approved_by_teacher', InternshipApplication::STATUS_APPROVED_BY_TEACHER,
+            'teacher_note' => 'nullable|string|max:500',
+        ]);
 
-    $application->status = $validated['status'];
-    $application->teacher_note = $validated['teacher_note'] ?? null;
-    $application->save();
+        $application->update([
+            'status' => $validated['status'],
+            'teacher_note' => $validated['teacher_note'] ?? null,
+            'teacher_verified_at' => now(),
+        ]);
 
-    return redirect()
-        ->route('teacher.applications.index')
-        ->with('success', 'Status pengajuan berhasil diperbarui.');
+        return redirect()
+            ->route('teacher.applications.index')
+            ->with('success', 'Status pengajuan berhasil diperbarui.');
     }
-
 }

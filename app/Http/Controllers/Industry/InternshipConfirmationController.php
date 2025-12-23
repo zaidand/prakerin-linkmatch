@@ -19,7 +19,7 @@ class InternshipConfirmationController extends Controller
 
         $applications = $industry->applications()
             ->with(['student.user', 'student.major', 'quota'])
-            ->where('status', InternshipApplication::STATUS_WAITING_INDUSTRY)
+            ->where('status', InternshipApplication::STATUS_ASSIGNED_BY_ADMIN)
             ->orderBy('created_at')
             ->paginate(15);
 
