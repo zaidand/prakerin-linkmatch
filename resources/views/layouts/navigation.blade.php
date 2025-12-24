@@ -226,29 +226,61 @@
                             ->get();
                     @endphp
 
-                    <div class="relative mr-4" x-data="{ notifOpen: false }">
+                    <div
+                        class="relative mr-4"
+                        x-data="{
+                            notifOpen: false,
+                            unreadCount: {{ (int) $unreadCount }},
+                            allRead: false,
+                            markAllRead() {
+                                if (this.unreadCount <= 0) return;
+
+                                // Hilangkan badge langsung saat dropdown dibuka
+                                const before = this.unreadCount;
+                                this.unreadCount = 0;
+                                this.allRead = true;
+
+                                fetch('{{ route('notifications.markAllRead') }}', {
+                                    method: 'POST',
+                                    headers: {
+                                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                        'Accept': 'application/json',
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify({})
+                                }).catch(() => {
+                                    // kalau gagal, balikin lagi supaya tidak menyesatkan
+                                    this.unreadCount = before;
+                                    this.allRead = false;
+                                });
+                            }
+                        }"
+                    >
                         <button
                             type="button"
-                            @click="notifOpen = !notifOpen"
+                            @click="notifOpen = !notifOpen; if (notifOpen) markAllRead();"
                             class="relative inline-flex items-center justify-center rounded-full p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none"
                         >
                             {{-- icon lonceng --}}
                             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                 xmlns="http://www.w3.org/2000/svg">
+                                xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002
-                                      6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165
-                                      6 8.388 6 11v3.159c0 .538-.214 1.055-.595
-                                      1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002
+                                    6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165
+                                    6 8.388 6 11v3.159c0 .538-.214 1.055-.595
+                                    1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
                             </svg>
 
                             {{-- badge jumlah --}}
                             @if($unreadCount > 0)
-                                <span class="absolute -top-0.5 -right-0.5 inline-flex items-center justify-center
-                                             px-1.5 py-0.5 text-[10px] font-bold leading-none
-                                             text-white bg-red-600 rounded-full">
-                                    {{ $unreadCount }}
-                                </span>
+                                <span
+                                    x-cloak
+                                    x-show="unreadCount > 0"
+                                    x-text="unreadCount"
+                                    class="absolute -top-0.5 -right-0.5 inline-flex items-center justify-center
+                                        px-1.5 py-0.5 text-[10px] font-bold leading-none
+                                        text-white bg-red-600 rounded-full"
+                                ></span>
                             @endif
                         </button>
 
@@ -261,9 +293,10 @@
                         >
                             <div class="px-4 py-2 border-b border-gray-100 flex items-center justify-between">
                                 <span class="font-semibold text-sm text-gray-700">Notifikasi</span>
+
                                 @if($unreadCount > 0)
-                                    <span class="text-xs text-red-600 font-semibold">
-                                        {{ $unreadCount }} belum dibaca
+                                    <span x-cloak x-show="unreadCount > 0" class="text-xs text-red-600 font-semibold">
+                                        <span x-text="unreadCount"></span> belum dibaca
                                     </span>
                                 @endif
                             </div>
@@ -281,13 +314,19 @@
                                             $created = $notification->created_at?->format('d M Y H:i');
                                             $unread = is_null($notification->read_at);
                                         @endphp
-                                        <li class="px-4 py-3 text-sm {{ $unread ? 'bg-gray-50' : 'bg-white' }} border-b border-gray-100 last:border-b-0">
+
+                                        <li
+                                            x-data="{ wasUnread: {{ $unread ? 'true' : 'false' }} }"
+                                            :class="(wasUnread && allRead) ? 'bg-white' : (wasUnread ? 'bg-gray-50' : 'bg-white')"
+                                            class="px-4 py-3 text-sm border-b border-gray-100 last:border-b-0"
+                                        >
                                             <p class="text-gray-800">{{ $message }}</p>
+
                                             <p class="mt-1 text-xs text-gray-500">
                                                 {{ $created }}
-                                                @if($unread)
+                                                <span x-cloak x-show="wasUnread && !allRead">
                                                     · <span class="text-green-600 font-semibold">Belum dibaca</span>
-                                                @endif
+                                                </span>
                                             </p>
                                         </li>
                                     @endforeach
