@@ -22,18 +22,18 @@
                             <h3 class="font-semibold text-lg">
                                 {{ $app->industry->name }}
                             </h3>
-                            <p class="text-sm text-gray-600">
+                            <p class="text-sm text-black mt-1">
                                 Status:
-                                <strong>
+                                <strong><u>
                                     @switch($app->status)
-                                        @case('waiting_teacher') Menunggu verifikasi Guru @break
-                                        @case('revision') Perlu revisi @break
-                                        @case('waiting_admin') Menunggu penetapan Admin @break
-                                        @case('waiting_industry') Menunggu konfirmasi Industri @break
+                                        @case('waiting_teacher_verification') Menunggu verifikasi Guru @break
+                                        @case('approved_by_teacher') Menunggu penetapan Admin @break
+                                        @case('assigned_by_admin') Menunggu konfirmasi Industri @break
                                         @case('accepted') Diterima Industri @break
                                         @case('rejected') Ditolak @break
+                                        @default {{ $app->status }}
                                     @endswitch
-                                </strong>
+                                </strong></u>
                             </p>
                             <p class="text-sm text-gray-600 mt-1">
                                 Diajukan pada: {{ $app->created_at->format('d/m/Y H:i') }}

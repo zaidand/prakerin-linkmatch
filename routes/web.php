@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\InternshipAssignmentController;
 use App\Http\Controllers\Admin\IndustryController as AdminIndustryController;
 use App\Http\Controllers\Admin\FinalGradeReportController;
+use App\Http\Controllers\Admin\IntroductionLetterController;
 use App\Http\Controllers\Teacher\InternshipVerificationController;
 use App\Http\Controllers\Teacher\MonitoringController;
 use App\Http\Controllers\Teacher\FinalGradeController as TeacherFinalGradeController;
@@ -96,6 +97,9 @@ Route::middleware(['auth', 'role:admin'])
 
         Route::get('/users/{user}/edit', [UserManagementController::class, 'edit'])->name('users.edit');
         Route::put('/users/{user}', [UserManagementController::class, 'update'])->name('users.update');
+
+        Route::get('applications/{application}/letter', [IntroductionLetterController::class, 'show'])
+            ->name('applications.letter');
     });
 
 // Group Guru Pembimbing

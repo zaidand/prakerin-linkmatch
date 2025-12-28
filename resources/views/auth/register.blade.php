@@ -53,20 +53,20 @@
 
             <div class="mt-2">
                 <x-input-label for="nis" value="NIS (untuk Siswa)" />
-                <x-text-input id="nis" class="block mt-1 w-full" type="text"
+                <x-text-input id="nis" class="block mt-1 w-full" type="text" placeholder="10 digit angka"
                               name="nis" :value="old('nis')" />
                 <x-input-error :messages="$errors->get('nis')" class="mt-2" />
             </div>
 
             <div class="mt-2">
                 <x-input-label for="class" value="Kelas (untuk Siswa)" />
-                <x-text-input id="class" class="block mt-1 w-full" type="text"
+                <x-text-input id="class" class="block mt-1 w-full" type="text" placeholder="Contoh: XI TKRO 1"
                               name="class" :value="old('class')" />
                 <x-input-error :messages="$errors->get('class')" class="mt-2" />
             </div>
 
             <div class="mt-2">
-                <x-input-label for="nip" value="NIP (Untuk Guru)" />
+                <x-input-label for="nip" value="NIP / NUPTK (Untuk Guru)" />
                 <x-text-input id="nip" class="block mt-1 w-full" type="text"
                               name="nip" :value="old('nip')" />
                 <x-input-error :messages="$errors->get('nip')" class="mt-2" />

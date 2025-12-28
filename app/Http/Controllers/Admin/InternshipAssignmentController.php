@@ -47,6 +47,7 @@ class InternshipAssignmentController extends Controller
         // cek kapasitas kuota (sederhana: hitung semua yg sudah dialokasikan)
         $usedCount = $quota->applications()
             ->whereIn('status', [
+                InternshipApplication::STATUS_APPROVED_BY_TEACHER,
                 InternshipApplication::STATUS_ASSIGNED_BY_ADMIN,
                 InternshipApplication::STATUS_ACCEPTED,
             ])
@@ -63,7 +64,9 @@ class InternshipAssignmentController extends Controller
             'admin_assigned_at'  => now(),
         ]);
 
-        return redirect()->route('admin.applications.index')
-            ->with('success', 'Penempatan siswa ke industri telah ditetapkan dan menunggu konfirmasi industri.');
+        return redirect()->route('admin.applications.letter', [
+        'application' => $application->id,
+        'print' => 1,
+        ])->with('success', 'Penempatan ditetapkan. Surat pengantar siap dicetak.');
     }
 }

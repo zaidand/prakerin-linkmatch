@@ -18,37 +18,58 @@
                 <div class="p-6 text-gray-900">
 
                     @forelse($applications as $app)
+                        @php
+                            // surat boleh dicetak hanya kalau sudah assign admin / sudah accepted industri
+                            $canPrint = in_array($app->status, [
+                                \App\Models\InternshipApplication::STATUS_APPROVED_BY_TEACHER,
+                                \App\Models\InternshipApplication::STATUS_ASSIGNED_BY_ADMIN,
+                                \App\Models\InternshipApplication::STATUS_ACCEPTED,
+                            ]);
+                        @endphp
+
                         <div class="border-b py-4">
                             <h3 class="font-semibold text-lg">
                                 {{ $app->student->user->name }} ({{ $app->student->major->name ?? '-' }})
                             </h3>
+
                             <p class="text-sm text-gray-600">
                                 Industri: {{ $app->industry->name }}
                             </p>
+
                             <p class="text-sm text-gray-600">
                                 Diajukan: {{ $app->created_at->format('d/m/Y H:i') }}
                             </p>
+
                             <p class="text-sm text-gray-600">
                                 Catatan Guru: {{ $app->teacher_note ?? '-' }}
                             </p>
-                            <a href="{{ route('admin.applications.assignForm', $app) }}"
-                               class="text-blue-600 underline text-sm">
-                                Tetapkan Penempatan
-                            </a>
+
+                            <div class="mt-2 flex gap-4">
+                                <a href="{{ route('admin.applications.assignForm', $app) }}"
+                                class="text-blue-600 underline text-sm">
+                                    Tetapkan Penempatan
+                                </a>
+
+                                @if($canPrint)
+                                    <a href="{{ route('admin.applications.letter', ['application' => $app->id, 'print' => 1]) }}"
+                                    class="text-blue-600 underline text-sm">
+                                        Cetak Surat
+                                    </a>
+                                @endif
+                            </div>
                         </div>
-                    @empty
+                        @empty
                         <p class="text-center text-gray-600">
                             Tidak ada pengajuan yang menunggu penetapan.
                         </p>
                     @endforelse
 
+
                     <div class="mt-4">
                         {{ $applications->links() }}
                     </div>
-
                 </div>
             </div>
-
         </div>
     </div>
 </x-app-layout>

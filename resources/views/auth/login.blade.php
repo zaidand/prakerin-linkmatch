@@ -39,9 +39,22 @@
                 </a>
             @endif
 
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
+        <div class="flex items-center gap-3">
+            @if (Route::has('register'))
+                <a
+                href="{{ route('register') }}"
+                class="inline-flex items-center px-4 py-1.5 rounded-md text-sm font-semibold
+                       border border-white/40 text-white bg-white/10 hover:bg-white/20
+                       focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition"
+                >
+                Register
+                </a>
+            @endif
+
+                <x-primary-button class="ms-3">
+                    {{ __('Log in') }}
+                </x-primary-button>
+            </div>
         </div>
     </form>
 </x-guest-layout>

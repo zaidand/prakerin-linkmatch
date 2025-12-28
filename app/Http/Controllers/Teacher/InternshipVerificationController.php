@@ -48,44 +48,39 @@ class InternshipVerificationController extends Controller
 
     public function approve(Request $request, InternshipApplication $application)
     {
-        $teacher = Auth::user()->teacher;
+    $teacher = Auth::user()->teacher;
 
-        if ($teacher && $teacher->major_id && $application->student->major_id !== $teacher->major_id) {
-            abort(403);
-        }
+    // Validasi guru hanya boleh lihat/approve siswa jurusan yang sama (rule kamu)
+    if ($teacher && $teacher->major_id && $application->student->major_id !== $teacher->major_id) {
+        abort(403);
+    }
 
-        if (Auth::user()?->role?->name !== 'teacher') {
-            abort(403);
-        }
+    // middleware sudah role:teacher, tapi kalau mau tetap cek aman:
+    if (Auth::user()?->role?->name !== 'teacher') {
+        abort(403);
+    }
 
-        // (opsional tapi sangat disarankan) hanya boleh approve kalau masih menunggu verifikasi guru
-        if ($application->status !== InternshipApplication::STATUS_WAITING_TEACHER) {
-            return redirect()
-                ->route('teacher.applications.show', $application)
-                ->with('error', 'Pengajuan ini tidak bisa disetujui pada status saat ini.');
-        }
+    $validated = $request->validate([
+        'teacher_note' => 'nullable|string|max:500',
+    ]);
 
-        $validated = $request->validate([
-            'teacher_note' => 'nullable|string|max:500',
-        ]);
+    // ✅ Update status & catatan (tanpa save())
+    $application->update([
+        'status' => InternshipApplication::STATUS_APPROVED_BY_TEACHER,
+        'teacher_note' => $validated['teacher_note'] ?? null,
+        'teacher_verified_at' => now(),
+    ]);
 
-        // update status + catatan + timestamp verifikasi
-        $application->update([
-            'status' => InternshipApplication::STATUS_APPROVED_BY_TEACHER,
-            'teacher_note' => $validated['teacher_note'] ?? null,
-            'teacher_verified_at' => now(),
-            'save'(),
-        ]);
+    // kirim notifikasi ke siswa
+    $studentUser = $application->student?->user;
 
-        // kirim notifikasi ke siswa
-        $studentUser = $application->student->user ?? null;
-        if ($studentUser) {
-            $studentUser->notify(new ApplicationStatusUpdated($application));
-        }
+    if ($studentUser) {
+        $studentUser->notify(new ApplicationStatusUpdated($application));
+    }
 
-        return redirect()
-            ->route('teacher.applications.index')
-            ->with('success', 'Pengajuan telah disetujui dan direkomendasikan ke admin.');
+    return redirect()
+        ->route('teacher.applications.index')
+        ->with('success', 'Pengajuan telah disetujui dan direkomendasikan ke admin.');
     }
 
     public function destroy(InternshipApplication $application)
