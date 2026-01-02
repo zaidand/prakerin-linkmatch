@@ -107,7 +107,7 @@
                                 {{-- Manajemen Akun = semua user non-admin (tanpa filter role=...) --}}
                                 <x-nav-link :href="route('admin.users.index')"
                                             :active="request()->routeIs('admin.users.index') && ! request()->has('role')">
-                                    Manajemen Akun
+                                    Aktivasi Akun
                                 </x-nav-link>
                             @endif
 
@@ -498,7 +498,7 @@
                         :href="route('admin.users.index')"
                         :active="request()->routeIs('admin.users.*') && !request()->has('role')"
                     >
-                        Manajemen Akun
+                        Aktivasi Akun
                     </x-responsive-nav-link>
                 @endif
 

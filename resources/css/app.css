@@ -2,3 +2,4 @@
 @tailwind components;
 @tailwind utilities;
 [x-cloak] { display: none !important; }
+@page { size: A4; margin: 12.7mm; }
