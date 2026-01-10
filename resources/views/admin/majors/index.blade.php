@@ -38,7 +38,7 @@
                                 <td class="border px-4 py-2">{{ $major->description }}</td>
                                 <td class="border px-4 py-2">
                                     <a href="{{ route('admin.majors.edit', $major) }}"
-                                       class="text-blue-600 underline mr-2">Edit</a>
+                                       class="bg-yellow-400 text-white px-2 py-1 rounded mb-2 inline-block">Edit</a>
 
                                     <form action="{{ route('admin.majors.destroy', $major) }}"
                                           method="POST"
@@ -46,7 +46,7 @@
                                           onsubmit="return confirm('Yakin hapus jurusan ini?')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="text-red-600 underline">
+                                        <button type="submit" class="bg-red-600 text-white px-2 py-1 rounded mb-2 inline-block">
                                             Hapus
                                         </button>
                                     </form>
