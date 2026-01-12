@@ -15,7 +15,7 @@
             @endif
 
             <div class="mb-4">
-                <p><strong>Industri:</strong> {{ $application->industry->name }}</p>
+                <p class="text-white"><strong>Industri:</strong> {{ $application->industry->name }}</p>
             </div>
 
             <div class="mb-4">
