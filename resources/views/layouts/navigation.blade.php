@@ -119,7 +119,7 @@
 
                             @if (Route::has('admin.final_grades.index'))
                                 <x-nav-link :href="route('admin.final_grades.index')" :active="request()->routeIs('admin.final_grades.*')">
-                                    Rekap Nilai
+                                    Laporan Nilai Akhir
                                 </x-nav-link>
                             @endif
                         @endif
@@ -516,7 +516,7 @@
                         :href="route('admin.final_grades.index')"
                         :active="request()->routeIs('admin.final_grades.*')"
                     >
-                        Rekap Nilai
+                        Laporan Nilai Akhir
                     </x-responsive-nav-link>
                 @endif
             @endif

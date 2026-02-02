@@ -14,7 +14,9 @@ class DashboardController extends Controller
         return match ($role) {
             'admin'              => redirect()->route('admin.dashboard'),
             'teacher'            => redirect()->route('teacher.dashboard'),
-            'industry_supervisor'=> redirect()->route('industry.dashboard'),
+            'industry_supervisor'=> $user->industry
+                                    ? redirect()->route('industry.dashboard')
+                                    : redirect()->route('industry.profile.edit'),
             'student'            => redirect()->route('student.dashboard'),
             default              => redirect('/'),
         };

@@ -25,7 +25,13 @@
                                     ({{ $app->student->major->name ?? '-' }})
                                 </h3>
                                 <p class="text-sm text-gray-600">
-                                    Status prakerin: Diterima / Selesai
+                                    Periode prakerin:
+                                    @if($app->quota)
+                                        {{ $app->quota->start_date->translatedFormat('d F Y') }}
+                                        – {{ $app->quota->end_date->translatedFormat('d F Y') }}
+                                    @else
+                                        <span class="italic text-gray-500">Belum dijadwalkan</span>
+                                    @endif
                                 </p>
                                 @if($app->industryAssessment)
                                     <p class="text-sm">

@@ -61,7 +61,7 @@
                                             @csrf
                                             @method('PATCH')
                                             <input type="hidden" name="status" value="active">
-                                            <button type="submit" class="text-green-600 underline mr-2">
+                                            <button type="submit" class="bg-green-600 text-white px-2 py-1 rounded mb-2 inline-block">
                                                 Aktifkan
                                             </button>
                                         </form>
@@ -74,12 +74,12 @@
                                             @csrf
                                             @method('PATCH')
                                             <input type="hidden" name="status" value="rejected">
-                                            <button type="submit" class="text-red-600 underline">
+                                            <button type="submit" class="bg-red-600 text-white px-2 py-1 rounded mb-2 inline-block">
                                                 Tolak
                                             </button>
 
                                             <a href="{{ route('admin.users.edit', $user) }}"
-                                                class="text-blue-600 underline mr-3">
+                                                class="bg-yellow-400 text-white px-2 py-1 rounded mb-2 inline-block">
                                                 Edit</a>
                                         </form>
                                     @endif

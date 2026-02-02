@@ -15,7 +15,7 @@ class DashboardController extends Controller
         $industry = Auth::user()->industry;
 
         if (!$industry) {
-            abort(403, 'Profil industri belum diisi.');
+            return redirect()->route('industry.profile.edit');
         }
 
         $industryId = $industry->id;

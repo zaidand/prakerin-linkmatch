@@ -81,7 +81,7 @@
                                             @method('PATCH')
                                             <input type="hidden" name="status" value="active">
                                             <button type="submit"
-                                                    class="text-green-600 underline mr-2"
+                                                    class="bg-green-400 text-white px-2 py-1 rounded mb-2 inline-block"
                                                     onclick="return confirm('Setujui industri ini?')">
                                                 Setujui
                                             </button>
@@ -97,7 +97,7 @@
                                             @method('PATCH')
                                             <input type="hidden" name="status" value="rejected">
                                             <button type="submit"
-                                                    class="text-red-600 underline"
+                                                    class="bg-red-600 text-white px-2 py-1 rounded mb-2 inline-block"
                                                     onclick="return confirm('Tolak industri ini?')">
                                                 Tolak
                                             </button>

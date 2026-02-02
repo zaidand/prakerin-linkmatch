@@ -14,7 +14,7 @@ class LogbookValidationController extends Controller
     {
         $industry = Auth::user()->industry;
         if (! $industry) {
-            abort(403, 'Profil industri belum diisi.');
+            return redirect()->route('industry.profile.edit');
         }
         return $industry;
     }

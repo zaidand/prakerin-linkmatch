@@ -14,7 +14,7 @@ class StudentAssessmentController extends Controller
     {
         $industry = Auth::user()->industry;
         if (! $industry) {
-            abort(403, 'Profil industri belum diisi.');
+            return redirect()->route('industry.profile.edit');
         }
         return $industry;
     }
@@ -23,7 +23,7 @@ class StudentAssessmentController extends Controller
     {
         $industry = $this->getIndustry();
 
-        $applications = InternshipApplication::with(['student.user', 'student.major', 'industryAssessment'])
+        $applications = InternshipApplication::with(['student.user', 'student.major', 'industryAssessment', 'quota'])
             ->where('industry_id', $industry->id)
             ->where('status', InternshipApplication::STATUS_ACCEPTED) // atau hampir selesai
             ->orderBy('created_at', 'desc')
