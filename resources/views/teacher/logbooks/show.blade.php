@@ -65,6 +65,40 @@
                         <p>{{ $logbookEntry->industry_comment ?? '-' }}</p>
                     </div>
 
+                    @if(session('success'))
+                        <div class="bg-green-100 text-green-800 px-4 py-2 rounded">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+
+                    <div>
+                        <p class="font-semibold">Komentar Guru Pembimbing:</p>
+
+                        @if($logbookEntry->teacher_comment)
+                            <p class="text-sm text-gray-800 mb-2">{{ $logbookEntry->teacher_comment }}</p>
+                        @else
+                            <p class="text-sm text-gray-500 mb-2 italic">Belum ada komentar dari guru.</p>
+                        @endif
+
+                        <form action="{{ route('teacher.logbooks.comment', $logbookEntry) }}" method="POST" class="space-y-2">
+                            @csrf
+                            <textarea
+                                name="teacher_comment"
+                                rows="3"
+                                class="w-full border rounded p-2 text-sm"
+                                placeholder="Tulis komentar untuk siswa..."
+                            >{{ old('teacher_comment', $logbookEntry->teacher_comment) }}</textarea>
+
+                            @error('teacher_comment')
+                                <div class="text-sm text-red-600">{{ $message }}</div>
+                            @enderror
+
+                            <button type="submit" class="px-3 py-1 bg-blue-600 text-white rounded text-sm">
+                                Simpan Komentar
+                            </button>
+                        </form>
+                    </div>
+
                     <div>
                         <p class="font-semibold mb-1">Status:</p>
                         @php

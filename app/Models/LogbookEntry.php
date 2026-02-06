@@ -20,6 +20,7 @@ class LogbookEntry extends Model
         'evidence_path',
         'status',
         'industry_comment',
+        'teacher_comment',
         'validated_at',
     ];
 

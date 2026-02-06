@@ -62,6 +62,12 @@
                                             Komentar: {{ $log->industry_comment }}
                                         </p>
                                     @endif
+
+                                    @if($log->teacher_comment)
+                                        <p class="mt-1 text-xs text-gray-700">
+                                            Komentar Guru: {{ $log->teacher_comment }}
+                                        </p>
+                                    @endif
                                 </div>
                             </div>
                         </div>

@@ -10,10 +10,14 @@
             <div class="flex">
                 <!-- Logo / Brand -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ Route::has('dashboard') ? route('dashboard') : url('/') }}">
-                        <span class="font-bold text-blue-700 text-lg">
-                            PRAKERIN YUPPENTEK 1
-                        </span>
+                    <a
+                    href="{{ Route::has('dashboard') ? route('dashboard') : url('/') }}"
+                    class="flex items-center gap-2"
+                    >
+                    <x-application-logo class="h-10 w-auto" />
+                    <span class="font-bold text-blue-700 text-lg">
+                        {{ config('app.name', 'Prakerin') }}
+                    </span>
                     </a>
                 </div>
 

@@ -141,6 +141,9 @@ Route::middleware(['auth', 'role:teacher'])
         Route::post('/monitoring/{application}/notes', [MonitoringController::class, 'storeNote'])
             ->name('monitoring.notes.store');
 
+        Route::post('/logbooks/{logbookEntry}/comment', [LogbookReviewController::class, 'comment'])
+            ->name('logbooks.comment');
+
         Route::get('/final-grades', [TeacherFinalGradeController::class, 'index'])
             ->name('final_grades.index');
 
