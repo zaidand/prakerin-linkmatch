@@ -58,7 +58,7 @@
     $major = $student?->major;
 
     $industry = $application->industry;
-    $quota = $application->quota;
+    $quota = $application->effective_quota;
 
     // coba ambil field yang mungkin ada (sesuaikan dengan nama kolom di tabel students/industries kamu)
     $nis = $student?->nis ?? $student?->nisn ?? '-';

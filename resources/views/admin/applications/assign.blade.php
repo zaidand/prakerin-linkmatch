@@ -33,15 +33,41 @@
                         @csrf
 
                         <div>
-                            <label class="block mb-1">Pilih Kuota / Periode Prakerin</label>
+                            @if($application->requestedQuota)
+                            <div class="mb-2 text-sm text-gray-700">
+                                Kuota yang dipilih siswa saat pengajuan:
+                                <strong>
+                                    {{ $application->requestedQuota->start_date->format('d/m/Y') }} -
+                                    {{ $application->requestedQuota->end_date->format('d/m/Y') }}
+                                </strong>
+                                (Kuota: {{ $application->requestedQuota->max_students }} siswa)
+                            </div>
+                        @endif
+                            <label class="block mb-1">Pilih Periode Kuota Industri</label>
                             <select name="industry_quota_id" class="border px-3 py-2 w-full" required>
                                 <option value="">-- Pilih Periode --</option>
                                 @foreach($quotas as $quota)
+                                @php
+                                    $currentEffectiveQuotaId = $application->industry_quota_id ?? $application->requested_quota_id;
+                                    $isCurrent = ($currentEffectiveQuotaId === $quota->id);
+                                    $remaining = $quota->remaining_slots ?? null;
+                                    $used = $quota->used_slots ?? null;
+                                    $isFull = is_int($remaining) && $remaining <= 0;
+                                    $canSelect = $quota->can_select ?? true;
+                                @endphp
                                     <option value="{{ $quota->id }}"
-                                        @selected(old('industry_quota_id', $application->industry_quota_id) == $quota->id)>
+                                        @selected(old('industry_quota_id', $application->industry_quota_id ?? $application->requested_quota_id) == $quota->id)
+                                        @disabled(!$canSelect)
+                                        >
                                         {{ $quota->start_date->format('d/m/Y') }} -
                                         {{ $quota->end_date->format('d/m/Y') }}
                                         (Kuota: {{ $quota->max_students }} siswa)
+                                        @if(is_int($used) && is_int($remaining))
+                                            — Terisi: {{ $used }}/{{ $quota->max_students }}, Sisa: {{ $remaining }}
+                                        @endif
+                                        @if(!$canSelect)
+                                            — Penuh
+                                        @endif
                                     </option>
                                 @endforeach
                             </select>

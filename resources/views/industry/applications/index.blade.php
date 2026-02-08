@@ -22,10 +22,10 @@
                             <h3 class="font-semibold text-lg">
                                 {{ $app->student->user->name }} ({{ $app->student->major->name ?? '-' }})
                             </h3>
-                            @if($app->quota)
+                            @if($app->effective_quota)
                                 <p class="text-sm text-gray-600">
-                                    Periode: {{ $app->quota->start_date->format('d/m/Y') }} -
-                                    {{ $app->quota->end_date->format('d/m/Y') }}
+                                    Periode: {{ $app->effective_quota->start_date->format('d/m/Y') }} -
+                                    {{ $app->effective_quota->end_date->format('d/m/Y') }}
                                 </p>
                             @endif
                             <p class="text-sm text-gray-600">

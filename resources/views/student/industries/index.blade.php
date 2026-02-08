@@ -37,6 +37,10 @@
                                         {{ $quota->start_date->format('d/m/Y') }} -
                                         {{ $quota->end_date->format('d/m/Y') }},
                                         Kuota: {{ $quota->max_students }} siswa
+                                        @if(isset($quota->remaining_slots))
+                                            , Terisi: {{ $quota->used_slots ?? 0 }}
+                                            , Sisa: {{ $quota->remaining_slots }}
+                                        @endif
                                         @if($quota->criteria)
                                             <br><span class="text-gray-600">Kriteria: {{ $quota->criteria }}</span>
                                         @endif
@@ -49,7 +53,7 @@
                             @php
                                 // nilai ini kita siapkan dari controller (lihat bagian 2)
                                 $remainingSlots = $industry->remaining_slots ?? null;
-                                $firstQuotaId   = optional($industry->quotas->first())->id;
+                                $firstQuotaId   = $industry->first_available_quota_id ?? optional($industry->quotas->first())->id;
                             @endphp
 
                             <div class="mt-2 flex justify-between items-center">
@@ -67,14 +71,18 @@
                                             Kuota sudah penuh
                                         </span>
                                     @else
-                                        {{-- MASIH ADA SLOT: TAMPILKAN TOMBOL AJUKAN --}}
-                                        <a href="{{ route('student.applications.create', [
+                                       @if(!$firstQuotaId)
++                                            <span class="text-xs font-semibold text-red-600">Kuota sudah penuh</span>
++                                        @else
++                                            {{-- MASIH ADA SLOT: TAMPILKAN TOMBOL AJUKAN (pakai kuota yang masih tersedia) --}}
++                                            <a href="{{ route('student.applications.create', [
                                                 'industry_id' => $industry->id,
                                                 'quota_id'    => $firstQuotaId,
                                             ]) }}"
                                            class="text-blue-600 underline text-sm">
                                             Ajukan Prakerin ke industri ini
                                         </a>
+                                        @endif
                                     @endif
                                 @else
                                     {{-- fallback: kalau remaining_slots belum dihitung di controller,

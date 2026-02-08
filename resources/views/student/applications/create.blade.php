@@ -32,7 +32,7 @@
                         <input type="hidden" name="industry_id" value="{{ $industry->id }}">
 
                         @if($quota)
-                            <input type="hidden" name="industry_quota_id" value="{{ $quota->id }}">
+                            <input type="hidden" name="requested_quota_id" value="{{ $quota->id }}">
                             <div class="mb-2 text-sm text-gray-700">
                                 Periode kuota:
                                 {{ $quota->start_date->format('d/m/Y') }} -

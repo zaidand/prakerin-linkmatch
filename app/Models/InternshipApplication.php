@@ -15,6 +15,7 @@ class InternshipApplication extends Model
         'student_id',
         'industry_id',
         'industry_quota_id',
+        'requested_quota_id',
         'status',
         'gpa',
         'interest',
@@ -54,6 +55,18 @@ class InternshipApplication extends Model
     public function quota()
     {
         return $this->belongsTo(IndustryQuota::class, 'industry_quota_id');
+    }
+
+    public function requestedQuota()
+    {
+        return $this->belongsTo(IndustryQuota::class, 'requested_quota_id');
+    }
+
+    public function getEffectiveQuotaAttribute(): ?IndustryQuota
+    {
+        // Kuota efektif = kuota yang ditetapkan admin (industry_quota_id) jika ada,
+        // kalau belum, pakai kuota yang dipilih siswa saat pengajuan (requested_quota_id).
+        return $this->quota ?? $this->requestedQuota;
     }
 
     public function logbooks()

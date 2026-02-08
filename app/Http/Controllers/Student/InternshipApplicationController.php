@@ -8,6 +8,8 @@ use App\Models\IndustryQuota;
 use App\Models\InternshipApplication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class InternshipApplicationController extends Controller
 {
@@ -16,7 +18,7 @@ class InternshipApplicationController extends Controller
         $student = Auth::user()->student;
 
         $applications = $student->applications()
-            ->with(['industry', 'quota'])
+            ->with(['industry', 'quota', 'requestedQuota'])
             ->orderByDesc('created_at')
             ->paginate(10);
 
@@ -34,7 +36,12 @@ class InternshipApplicationController extends Controller
 
         $quota = null;
         if ($quotaId) {
-            $quota = IndustryQuota::where('industry_id', $industry->id)->findOrFail($quotaId);
+            $today = now()->toDateString();
+            $quota = IndustryQuota::where('industry_id', $industry->id)
+                ->where('is_active', true)
+                ->whereDate('start_date', '<=', $today)
+                ->whereDate('end_date', '>=', $today)
+                ->findOrFail($quotaId);
         }
 
         // Cek Link & Match
@@ -51,7 +58,7 @@ class InternshipApplicationController extends Controller
 
         $request->validate([
             'industry_id'       => 'required|exists:industries,id',
-            'industry_quota_id' => 'nullable|exists:industry_quotas,id',
+            'requested_quota_id' => 'required|exists:industry_quotas,id',
             'gpa'               => 'nullable|numeric|min:0|max:100',
             'interest'          => 'required|string',
             'additional_info'   => 'nullable|string',
@@ -63,20 +70,52 @@ class InternshipApplicationController extends Controller
             abort(403, 'Industri ini tidak sesuai dengan jurusan Anda.');
         }
 
-        $quotaId = $request->industry_quota_id;
-        if ($quotaId) {
-            IndustryQuota::where('industry_id', $industry->id)->findOrFail($quotaId);
-        }
+        $quotaId = $request->requested_quota_id;
 
-        $application = InternshipApplication::create([
-            'student_id'        => $student->id,
-            'industry_id'       => $industry->id,
-            'industry_quota_id' => $quotaId,
-            'status'            => InternshipApplication::STATUS_WAITING_TEACHER,
-            'gpa'               => $request->gpa,
-            'interest'          => $request->interest,
-            'additional_info'   => $request->additional_info,
-        ]);
+        $today = now()->toDateString();
+        $quota = IndustryQuota::where('industry_id', $industry->id)
+            ->where('is_active', true)
+            ->whereDate('start_date', '<=', $today)
+            ->whereDate('end_date', '>=', $today)
+            ->findOrFail($quotaId);
+
+        $activeStatuses = [
+            InternshipApplication::STATUS_WAITING_TEACHER,
+            InternshipApplication::STATUS_APPROVED_BY_TEACHER,
+            InternshipApplication::STATUS_ASSIGNED_BY_ADMIN,
+            InternshipApplication::STATUS_ACCEPTED,
+        ];
+
+        $application = DB::transaction(function () use ($student, $industry, $quota, $request, $activeStatuses) {
+            // kunci row kuota supaya tidak terjadi overbook pada submit bersamaan
+            $lockedQuota = IndustryQuota::whereKey($quota->id)->lockForUpdate()->firstOrFail();
+
+            $usedCount = InternshipApplication::query()
+                ->whereIn('status', $activeStatuses)
+                ->where(function ($q) use ($lockedQuota) {
+                    $q->where('industry_quota_id', $lockedQuota->id)
+                      ->orWhere(function ($q2) use ($lockedQuota) {
+                          $q2->whereNull('industry_quota_id')
+                             ->where('requested_quota_id', $lockedQuota->id);
+                      });
+                })
+                ->count();
+
+            if ($usedCount >= $lockedQuota->max_students) {
+                throw ValidationException::withMessages(['requested_quota_id' => 'Kuota industri ini sudah penuh.']);
+            }
+
+            return InternshipApplication::create([
+                'student_id'         => $student->id,
+                'industry_id'        => $industry->id,
+                'requested_quota_id' => $lockedQuota->id,
+                'industry_quota_id'  => null,
+                'status'             => InternshipApplication::STATUS_WAITING_TEACHER,
+                'gpa'                => $request->gpa,
+                'interest'           => $request->interest,
+                'additional_info'    => $request->additional_info,
+            ]);
+        });
 
         // Kirim notifikasi ke guru pembimbing & admin
         $teachers = \App\Models\User::whereHas('role', fn($q) => $q->where('name', 'teacher'))->get();
