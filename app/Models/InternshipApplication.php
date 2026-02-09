@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\LogbookEntry;
 use App\Models\MonitoringNote;
@@ -89,9 +90,31 @@ class InternshipApplication extends Model
     return $this->hasOne(FinalReport::class);
     }
 
-    public function industryAssessment()
+    public function industryAssessment(): HasOne
     {
-    return $this->hasOne(IndustryAssessment::class);
+    return $this->hasOne(IndustryAssessment::class, 'internship_application_id');
+    }
+
+    public function isIndustryAssessmentSubmitted(): bool
+    {
+        $a = $this->industryAssessment;
+        if (!$a) return false;
+
+        // Anggap "sudah simpan penilaian" jika ada isi (bukan hanya row kosong)
+        foreach ([
+            'discipline',
+            'technical_skill',
+            'teamwork',
+            'communication',
+            'responsibility',
+            'overall_score',
+            'notes',
+        ] as $field) {
+            if (!is_null($a->{$field}) && $a->{$field} !== '') {
+                return true;
+            }
+        }
+        return false;
     }
 
     public function finalGrade()

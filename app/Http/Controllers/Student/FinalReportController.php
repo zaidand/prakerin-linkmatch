@@ -7,10 +7,27 @@ use App\Models\FinalReport;
 use App\Models\InternshipApplication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class FinalReportController extends Controller
 {
+
+protected function isLockedByIndustryAssessment(int $applicationId): bool
+    {
+        return DB::table('industry_assessments')
+            ->where('internship_application_id', $applicationId)
+            ->where(function ($q) {
+                $q->whereNotNull('discipline')
+                 ->orWhereNotNull('technical_skill')
+                  ->orWhereNotNull('teamwork')
+                  ->orWhereNotNull('communication')
+                  ->orWhereNotNull('responsibility')
+                  ->orWhereNotNull('overall_score')
+                  ->orWhereNotNull('notes');
+            })
+            ->exists();
+    }
     protected function getAcceptedApplication()
     {
         $student = Auth::user()->student;
@@ -18,6 +35,7 @@ class FinalReportController extends Controller
         return InternshipApplication::where('student_id', $student->id)
             ->where('status', InternshipApplication::STATUS_ACCEPTED)
             ->with('finalReport', 'industry')
+            ->with('finalReport', 'industry', 'industryAssessment')
             ->firstOrFail();
     }
 
@@ -26,13 +44,24 @@ class FinalReportController extends Controller
         $application = $this->getAcceptedApplication();
         $report = $application->finalReport;
 
-        return view('student.final_report.index', compact('application', 'report'));
+        $lockedByIndustry = $this->isLockedByIndustryAssessment($application->id);
+
+        return view('student.final_report.index', compact('application', 'report', 'lockedByIndustry'));
     }
 
     public function store(Request $request)
     {
         $application = $this->getAcceptedApplication();
 
+        if ($this->isLockedByIndustryAssessment($application->id)) {
+            return redirect()->route('student.final_report.index')
+                ->withErrors('Laporan Akhir sudah dikunci karena Penilaian Industri sudah disimpan. Anda tidak dapat mengunggah/mengganti file.');
+        }
+
+        if ($application->isIndustryAssessmentSubmitted()) {
+            return redirect()->route('student.final_report.index')
+                ->withErrors('Laporan Akhir sudah dikunci karena Penilaian Industri sudah disimpan. Anda tidak dapat mengunggah/mengganti file.');
+        }
         $request->validate([
             'report_file' => 'required|file|mimes:pdf,doc,docx|max:5120',
             'summary'     => 'nullable|string',
@@ -41,6 +70,39 @@ class FinalReportController extends Controller
         if ($application->finalReport) {
             return redirect()->route('student.final_report.index')
                 ->withErrors('Laporan sudah pernah dikirim. Gunakan menu revisi bila diizinkan.');
+        }
+
+        $path = $request->file('report_file')->store('final_reports', 'public');
+
+        FinalReport::create([
+            'internship_application_id' => $application->id,
+            'file_path'                 => $path,
+            'summary'                   => $request->summary,
+            'status'                    => FinalReport::STATUS_WAITING,
+            'submitted_at'              => now(),
+        ]);
+
+        // Jika sudah ada laporan, store() akan berperilaku sebagai "replace" (tanpa harus status revisi)
+        $report = $application->finalReport;
+        if ($report) {
+            if ($report->file_path && Storage::disk('public')->exists($report->file_path)) {
+                Storage::disk('public')->delete($report->file_path);
+            }
+
+            $path = $request->file('report_file')->store('final_reports', 'public');
+
+            $report->update([
+                'file_path'       => $path,
+                'summary'         => $request->summary,
+                'status'          => FinalReport::STATUS_WAITING,
+                'submitted_at'    => now(),
+                'teacher_score'   => null,
+                'teacher_comment' => null,
+                'graded_at'       => null,
+            ]);
+
+            return redirect()->route('student.final_report.index')
+                ->with('success', 'Laporan akhir berhasil diperbarui.');
         }
 
         $path = $request->file('report_file')->store('final_reports', 'public');
@@ -62,13 +124,19 @@ class FinalReportController extends Controller
         $application = $this->getAcceptedApplication();
         $report = $application->finalReport;
 
+        if ($application->isIndustryAssessmentSubmitted()) {
+            return redirect()->route('student.final_report.index')
+                ->withErrors('Laporan Akhir sudah dikunci karena Penilaian Industri sudah disimpan. Anda tidak dapat mengunggah/mengganti file.');
+        }
+
         if (! $report) {
             abort(404);
         }
 
-        if ($report->status !== FinalReport::STATUS_REVISION) {
+        // Tidak perlu status revisi. Yang penting: belum dikunci oleh penilaian industri.
+        if ($this->isLockedByIndustryAssessment($application->id)) {
             return redirect()->route('student.final_report.index')
-                ->withErrors('Laporan tidak dalam status revisi.');
+                ->withErrors('Laporan Akhir sudah dikunci karena Penilaian Industri sudah disimpan. Anda tidak dapat mengunggah/mengganti file.');
         }
 
         $request->validate([
@@ -94,6 +162,6 @@ class FinalReportController extends Controller
         ]);
 
         return redirect()->route('student.final_report.index')
-            ->with('success', 'Revisi laporan berhasil diunggah.');
+            ->with('success', 'Laporan akhir berhasil diperbarui.');
     }
 }

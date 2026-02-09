@@ -3,12 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class IndustryAssessment extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
         'internship_application_id',
         'discipline',
@@ -20,7 +18,7 @@ class IndustryAssessment extends Model
         'notes',
     ];
 
-    public function application()
+    public function internshipApplication(): BelongsTo
     {
         return $this->belongsTo(InternshipApplication::class, 'internship_application_id');
     }
