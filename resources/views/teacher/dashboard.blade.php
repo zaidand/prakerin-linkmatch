@@ -14,21 +14,25 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <a href="{{ route('teacher.applications.index') }}" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition">
+                    <x-heroicon-o-clipboard-document-check class="h-8 w-8" aria-hidden="true" />
                     <p class="text-sm text-gray-500">Menunggu Verifikasi</p>
                     <p class="text-3xl font-bold mt-2">{{ $waitingTeacher }}</p>
                 </a>
 
                 <div class="bg-white p-6 rounded-lg shadow">
+                    <x-heroicon-o-arrow-right-end-on-rectangle class="h-8 w-8" aria-hidden="true" />
                     <p class="text-sm text-gray-500">Direkomendasikan ke Admin</p>
                     <p class="text-3xl font-bold mt-2">{{ $approvedByTeacher }}</p>
                 </div>
 
                 <a href="{{ route('teacher.monitoring.index') }}" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition">
+                    <x-heroicon-o-user-group class="h-8 w-8" aria-hidden="true" />
                     <p class="text-sm text-gray-500">Siswa Prakerin Aktif</p>
                     <p class="text-3xl font-bold mt-2">{{ $activeInterns }}</p>
                 </a>
 
                 <div class="bg-white p-6 rounded-lg shadow">
+                    <x-heroicon-o-book-open class="h-8 w-8" aria-hidden="true" />
                     <p class="text-sm text-gray-500">Logbook 7 Hari Terakhir</p>
                     <p class="text-3xl font-bold mt-2">{{ $logbookLast7Days }}</p>
                 </div>

@@ -8,31 +8,37 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 
                 <a href="{{ route('admin.applications.index') }}" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition">
+                    <x-heroicon-o-clipboard-document-check class="h-8 w-8" aria-hidden="true" />
                     <p class="text-sm text-gray-500">Menunggu Penempatan (Assign)</p>
                     <p class="text-3xl font-bold mt-2">{{ $waitingAssign }}</p>
                 </a>
 
                 <a href="{{ route('admin.applications.index') }}" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition">
+                    <x-heroicon-o-clock class="h-8 w-8" aria-hidden="true" />
                     <p class="text-sm text-gray-500">Menunggu Konfirmasi Industri</p>
                     <p class="text-3xl font-bold mt-2">{{ $waitingIndustry }}</p>
                 </a>
 
                 <div class="bg-white p-6 rounded-lg shadow">
+                    <x-heroicon-o-document-check class="h-8 w-8" aria-hidden="true" />
                     <p class="text-sm text-gray-500">Diterima Industri</p>
                     <p class="text-3xl font-bold mt-2">{{ $accepted }}</p>
                 </div>
 
                 <div class="bg-white p-6 rounded-lg shadow">
+                    <x-heroicon-o-archive-box-x-mark class="h-8 w-8" aria-hidden="true" />
                     <p class="text-sm text-gray-500">Ditolak</p>
                     <p class="text-3xl font-bold mt-2">{{ $rejected }}</p>
                 </div>
 
                 <a href="{{ route('admin.users.index') }}" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition">
+                    <x-heroicon-o-user-minus class="h-8 w-8" aria-hidden="true" />
                     <p class="text-sm text-gray-500">Akun Pending</p>
                     <p class="text-3xl font-bold mt-2">{{ $pendingUsers }}</p>
                 </a>
 
                 <a href="{{ route('admin.users.index') }}" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition">
+                    <x-heroicon-o-user-plus class="h-8 w-8" aria-hidden="true" />
                     <p class="text-sm text-gray-500">Akun Aktif</p>
                     <p class="text-3xl font-bold mt-2">{{ $activeUsers }}</p>
                 </a>

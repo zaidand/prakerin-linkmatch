@@ -37,10 +37,10 @@ class DashboardController extends Controller
                 'internship_application_id',
                 InternshipApplication::select('id')->where('student_id', $studentId)
             )
-            ->where('status', 'pending')
+            ->where('status', LogbookEntry::STATUS_WAITING) // waiting_validation
             ->count();
 
-        // ✅ Cara aman hitung notifikasi belum dibaca (tanpa unreadNotifications())
+        // Cara aman hitung notifikasi belum dibaca (tanpa unreadNotifications())
         $unreadNotif = DatabaseNotification::query()
             ->where('notifiable_type', $user::class)
             ->where('notifiable_id', $user->id)

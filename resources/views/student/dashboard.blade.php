@@ -9,6 +9,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
                 <div class="bg-white p-6 rounded-lg shadow">
+                    <x-heroicon-o-document-check class="h-8 w-8" aria-hidden="true" />
                     <p class="text-sm text-gray-500">Status Pengajuan Terakhir</p>
                     <p class="mt-2 font-semibold text-gray-800">
                         {{ $latestApplication?->status ?? 'Belum ada pengajuan' }}
@@ -16,16 +17,19 @@
                 </div>
 
                 <a href="{{ route('student.logbooks.index') }}" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition">
+                    <x-heroicon-o-book-open class="h-8 w-8" aria-hidden="true" />
                     <p class="text-sm text-gray-500">Logbook Hari Ini</p>
                     <p class="text-3xl font-bold mt-2">{{ $logbookToday }}</p>
                 </a>
 
                 <a href="{{ route('student.logbooks.index') }}" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition">
+                    <x-heroicon-o-clock class="h-8 w-8" aria-hidden="true" />
                     <p class="text-sm text-gray-500">Logbook Pending Validasi</p>
                     <p class="text-3xl font-bold mt-2">{{ $myPendingLogbooks }}</p>
                 </a>
 
                 <div class="bg-white p-6 rounded-lg shadow">
+                    <x-heroicon-o-bell-alert class="h-8 w-8" aria-hidden="true" />
                     <p class="text-sm text-gray-500">Notifikasi Belum Dibaca</p>
                     <p class="text-3xl font-bold mt-2">{{ $unreadNotif }}</p>
                 </div>

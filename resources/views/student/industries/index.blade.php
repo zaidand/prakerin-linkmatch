@@ -72,10 +72,10 @@
                                         </span>
                                     @else
                                        @if(!$firstQuotaId)
-+                                            <span class="text-xs font-semibold text-red-600">Kuota sudah penuh</span>
-+                                        @else
-+                                            {{-- MASIH ADA SLOT: TAMPILKAN TOMBOL AJUKAN (pakai kuota yang masih tersedia) --}}
-+                                            <a href="{{ route('student.applications.create', [
+                                            <span class="text-xs font-semibold text-red-600">Kuota sudah penuh</span>
+                                        @else
+                                            {{-- MASIH ADA SLOT: TAMPILKAN TOMBOL AJUKAN (pakai kuota yang masih tersedia) --}}
+                                            <a href="{{ route('student.applications.create', [
                                                 'industry_id' => $industry->id,
                                                 'quota_id'    => $firstQuotaId,
                                             ]) }}"

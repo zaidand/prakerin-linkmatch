@@ -40,7 +40,7 @@ class DashboardController extends Controller
                 'internship_application_id',
                 InternshipApplication::select('id')->where('industry_id', $industryId)
             )
-            ->where('status', 'pending')
+            ->where('status', LogbookEntry::STATUS_WAITING) // waiting_validation
             ->count();
 
         return view('industry.dashboard', compact(
