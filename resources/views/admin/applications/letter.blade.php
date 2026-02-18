@@ -9,7 +9,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
-        @page { size: A4; margin: 12.7mm; }
+        @page { size: A4; margin: 10mm; }
 
     @media print {
         .no-print { display: none !important; }
@@ -27,6 +27,29 @@
             padding: 0 !important;
             box-shadow: none !important;
         }
+
+        .page-2 {
+        page-break-before: always;
+        break-before: page;
+        }
+
+        /* Susun konten halaman 2 vertikal dan buat tinggi minimal 1 halaman konten */
+        .page-2-inner {
+            min-height: 271mm;              /* A4 (297mm) - margin atas+bawah (12.7mm*2) ≈ 271.6mm */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Footer nempel bawah */
+        .letter-footer {
+            margin-top: auto !important;    /* override mt-10 */
+        }
+
+        /* Biar blok tidak terbelah (opsional tapi bagus) */
+        .avoid-break {
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
     }
 
     /* tampilan layar boleh tetap rapi */
@@ -34,11 +57,11 @@
 
     .text-11 { font-size: 11pt; }
     .text-12 { font-size: 12pt; }
-    .lh { line-height: 1.35; }
+    .lh { line-height: 1.25; }
     .hr-strong { border-top: 2px solid #000; }
     .hr-thin { border-top: 1px solid #000; }
     table { border-collapse: collapse; width: 100%; }
-    th, td { border: 1px solid #000; padding: 6px 8px; }
+    th, td { border: 1px solid #000; padding: 4px 6px; }
 </style>
 </head>
 
@@ -211,32 +234,40 @@
             Setelah menyelesaikan program PRAKERIN, dimohon agar blanko-blanko yang telah diisi dikembalikan kepada kami.
             Data tersebut diperlukan untuk mengisi raport pada semester V dan sebagai syarat untuk mengikuti Ujian Nasional (UN).
         </p>
-
-        <p class="mt-3">
-            Demikian, atas perhatian dan kerja samanya kami ucapkan terima kasih.
-        </p>
     </div>
 
-    {{-- TANDA TANGAN --}}
-    <div class="mt-8 grid grid-cols-2 text-11">
-        <div></div>
-        <div class="text-center">
-            <div>Wakil Kepala Sekolah</div>
-            <div>Urusan HUMAS &amp; HUB. DU/DI</div>
+    {{-- ====== HALAMAN 2 MULAI DI SINI ====== --}}
+<div class="page-2" style="page-break-before: always; break-before: page;">
+    <div class="page-2-inner">
 
-            <div style="height: 70px;"></div>
-
-            <div class="font-semibold uppercase">( JAMALUDIN )</div>
+        <div class="text-11 lh">
+            <p class="mt-3">
+                Demikian, atas perhatian dan kerja samanya kami ucapkan terima kasih.
+            </p>
         </div>
-    </div>
 
-    {{-- FOOTER --}}
-    <div class="mt-10 text-[10pt] text-center">
-        <div class="hr-thin mb-1"></div>
-        <div>
-            Alamat Jl. Veteran No. 1 Kota Tangerang Telp. 021-5524518
-            website: smkyuppentek1.sch.id Email: esemkayuppenteksatu@yahoo.co.id
+        {{-- TANDA TANGAN --}}
+        <div class="mt-8 grid grid-cols-2 text-11 avoid-break">
+            <div></div>
+            <div class="text-center">
+                <div>Wakil Kepala Sekolah</div>
+                <div>Urusan HUMAS &amp; HUB. DU/DI</div>
+
+                <div style="height: 70px;"></div>
+
+                <div class="font-semibold uppercase">( JAMALUDIN )</div>
+            </div>
         </div>
+
+        {{-- FOOTER --}}
+        <div class="mt-10 text-[10pt] text-center letter-footer avoid-break">
+            <div class="hr-thin mb-1"></div>
+            <div>
+                Alamat Jl. Veteran No. 1 Kota Tangerang Telp. 021-5524518
+                website: smkyuppentek1.sch.id Email: esemkayuppenteksatu@yahoo.co.id
+            </div>
+        </div>
+
     </div>
 </div>
 

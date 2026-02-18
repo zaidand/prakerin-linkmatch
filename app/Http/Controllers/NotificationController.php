@@ -5,16 +5,22 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Notifications\DatabaseNotification;
+use App\Models\User;
 
 class NotificationController extends Controller
 {
     public function index()
     {
         $user = Auth::user();
+        if (! $user instanceof User) {
+            abort(403);
+        }
 
-        $notifications = $user->notifications
-            ->sortByDesc('created_at')
-            ->take(15);
+        $notifications = DatabaseNotification::query()
+            ->where('notifiable_type', $user::class)
+            ->where('notifiable_id', $user->id)
+            ->orderByDesc('created_at')
+            ->paginate(15);
 
         return view('notifications.index', compact('notifications'));
     }
@@ -22,11 +28,15 @@ class NotificationController extends Controller
     public function markAsRead(string $id)
     {
         $user = Auth::user();
-
-        $notification = $user->notifications->where('id', $id)->first();
-        if (!$notification) {
-            abort(404);
+        if (! $user instanceof User) {
+            abort(403);
         }
+
+        $notification = DatabaseNotification::query()
+            ->where('id', $id)
+            ->where('notifiable_type', $user::class)
+            ->where('notifiable_id', $user->id)
+            ->firstOrFail();
         $notification->markAsRead();
 
         return back();
@@ -35,6 +45,9 @@ class NotificationController extends Controller
      public function markAllRead(Request $request)
     {
         $user = $request->user();
+        if (! $user instanceof User) {
+            abort(403);
+        }
 
         // Cara aman: update langsung tabel notifications (tanpa unreadNotifications())
         DatabaseNotification::query()

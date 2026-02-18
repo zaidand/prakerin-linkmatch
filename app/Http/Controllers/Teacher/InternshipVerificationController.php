@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
 use App\Models\InternshipApplication;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Notifications\ApplicationStatusUpdated;
@@ -64,18 +65,23 @@ class InternshipVerificationController extends Controller
         'teacher_note' => 'nullable|string|max:500',
     ]);
 
-    // ✅ Update status & catatan (tanpa save())
+    // Update status & catatan (tanpa save())
     $application->update([
         'status' => InternshipApplication::STATUS_APPROVED_BY_TEACHER,
         'teacher_note' => $validated['teacher_note'] ?? null,
         'teacher_verified_at' => now(),
     ]);
 
-    // kirim notifikasi ke siswa
+    $application->loadMissing('student.user');
     $studentUser = $application->student?->user;
 
-    if ($studentUser) {
+    if ($studentUser instanceof User) {
         $studentUser->notify(new ApplicationStatusUpdated($application));
+    }
+
+    $admins = User::whereHas('role', fn($q) => $q->where('name', 'admin'))->get();
+    foreach ($admins as $admin) {
+        $admin->notify(new ApplicationStatusUpdated($application));
     }
 
     return redirect()
@@ -108,7 +114,7 @@ class InternshipVerificationController extends Controller
 
         $validated = $request->validate([
             // karena kamu sudah tidak pakai revision, sebaiknya update hanya untuk approved_by_teacher saja
-            'status' => 'required|in: approved_by_teacher', InternshipApplication::STATUS_APPROVED_BY_TEACHER,
+            'status' => 'required|in:' . InternshipApplication::STATUS_APPROVED_BY_TEACHER,
             'teacher_note' => 'nullable|string|max:500',
         ]);
 

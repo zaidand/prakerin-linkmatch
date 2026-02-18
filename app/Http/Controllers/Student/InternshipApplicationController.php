@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Models\Industry;
 use App\Models\IndustryQuota;
 use App\Models\InternshipApplication;
+use App\Notifications\ApplicationStatusUpdated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -117,12 +119,28 @@ class InternshipApplicationController extends Controller
             ]);
         });
 
-        // Kirim notifikasi ke guru pembimbing & admin
-        $teachers = \App\Models\User::whereHas('role', fn($q) => $q->where('name', 'teacher'))->get();
-        $admins   = \App\Models\User::whereHas('role', fn($q) => $q->where('name', 'admin'))->get();
+        // Kirim notifikasi:
+        // - siswa (biar masuk ke halaman Notifikasi, bukan hanya flash message)
+        // - guru pembimbing (ketat: jurusan yang sama)
+        // - admin
 
-        foreach ($teachers->merge($admins) as $user) {
-        $user->notify(new \App\Notifications\ApplicationStatusUpdated($application));
+        $teachersQuery = User::whereHas('role', fn($q) => $q->where('name', 'teacher'));
+        if (!empty($student->major_id)) {
+            // Kurangi spam: hanya guru dengan jurusan yang sama
+            $teachersQuery->whereHas('teacher', fn($q) => $q->where('major_id', $student->major_id));
+        }
+        $teachers = $teachersQuery->get();
+
+        $admins = User::whereHas('role', fn($q) => $q->where('name', 'admin'))->get();
+
+        $recipients = $teachers
+            ->merge($admins)
+            ->merge([Auth::user()]) // siswa sendiri
+            ->filter(fn ($u) => $u instanceof User)
+            ->unique('id');
+
+        foreach ($recipients as $user) {
+            $user->notify(new ApplicationStatusUpdated($application));
         }
 
         return redirect()->route('student.applications.index')
