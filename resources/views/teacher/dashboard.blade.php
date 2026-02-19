@@ -3,8 +3,9 @@
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">Dashboard Guru Pembimbing</h2>
     </x-slot>
 
-    <div class="py-12">
+    <div class="pt-6 pb-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <x-welcome-banner/>
 
             @if(!$teacherMajorId)
                 <div class="mb-4 bg-yellow-100 text-yellow-800 px-4 py-2 rounded">

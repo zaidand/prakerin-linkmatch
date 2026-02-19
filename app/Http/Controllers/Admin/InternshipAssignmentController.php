@@ -13,8 +13,23 @@ class InternshipAssignmentController extends Controller
     public function index()
     {
         $applications = InternshipApplication::with(['student.user', 'student.major', 'industry', 'quota', 'requestedQuota'])
-            ->where('status', InternshipApplication::STATUS_APPROVED_BY_TEACHER)
-            ->orderBy('created_at', 'desc')
+            ->whereIn('status', [
+                InternshipApplication::STATUS_APPROVED_BY_TEACHER,   // belum assign
+                InternshipApplication::STATUS_ASSIGNED_BY_ADMIN,     // sudah assign, menunggu konfirmasi industri
+            ])
+            // Prioritaskan yang belum di-assign agar tetap mudah ditindak
+            ->orderByRaw(
+                "CASE
+                    WHEN status = ? THEN 0
+                    WHEN status = ? THEN 1
+                    ELSE 2
+                 END",
+                [
+                    InternshipApplication::STATUS_APPROVED_BY_TEACHER,
+                    InternshipApplication::STATUS_ASSIGNED_BY_ADMIN,
+                ]
+            )
+            ->orderByDesc('created_at')
             ->paginate(15);
 
         return view('admin.applications.index', compact('applications'));

@@ -3,8 +3,9 @@
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">Dashboard Siswa</h2>
     </x-slot>
 
-    <div class="py-12">
+    <div class="pt-6 pb-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <x-welcome-banner/>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
